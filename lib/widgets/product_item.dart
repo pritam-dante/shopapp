@@ -39,6 +39,8 @@ class ProductItem extends StatelessWidget {
         ),
         footer: GridTileBar(
           backgroundColor: Colors.black54,
+          //With provider when listen is false the whole screen doesnot load
+          //but with consumer the whole screen builds again
           leading: Consumer<Product>(
             builder: (ctx, product, child) => IconButton(
               icon: Icon(

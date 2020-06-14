@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import './products.dart';
 
 class ProductProvider with ChangeNotifier {
-  
   List<Product> _items = [
-    
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -37,16 +36,31 @@ class ProductProvider with ChangeNotifier {
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
-    
   ];
+
+  var _showFavouriteOnly = false;
 
   Product findById(String id) {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
   List<Product> get items {
+    if (_showFavouriteOnly) {
+      return _items.where((prodItem) => prodItem.isFavourite).toList();
+    }
     return [..._items];
   }
+
+  void showFavouriteOnly() {
+    _showFavouriteOnly = true;
+    notifyListeners();
+  }
+
+  void showAll() {
+    _showFavouriteOnly = false;
+    notifyListeners();
+  }
+
   void addProduct() {
     notifyListeners();
   }
