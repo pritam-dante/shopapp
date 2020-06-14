@@ -11,15 +11,22 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      //to make rounded color
+      //to make rounded corner of the Grid
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (ctx) => ProductDetailScreen(title),
-              ),
+            //pushing on the fly..It is easy to implement.
+            //Difficult to manage in big apps
+            // Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (ctx) => ProductDetailScreen(title),
+            //   ),
+            // );
+            //NamedRoutes
+            Navigator.of(context).pushNamed(
+              ProductDetailScreen.routeName,
+              arguments: id,
             );
           },
           child: Image.network(
