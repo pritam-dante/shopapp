@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import './products.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProductProvider with ChangeNotifier {
   List<Product> _items = [
@@ -64,18 +66,33 @@ class ProductProvider with ChangeNotifier {
   // }
 
   void addProduct(Product product) {
-    final newProduct = Product(
-      title: product.title,
-      price: product.price,
-      description: product.description,
-      imageUrl: product.imageUrl,
-      id: DateTime.now().toString(),
-    );
+    const url = 'https://shopapp69.firebaseio.com/products.json';
+    http
+        .post(
+      url,
+      body: json.encode({
+        'title': product.title,
+        'description': product.description,
+        'price': product.price,
+        'imageUrl': product.imageUrl,
+        'isFavourite': product.isFavourite,
+      }),
+    )
+        .then((response) {
+      print(json.decode(response.body));
+      final newProduct = Product(
+        title: product.title,
+        price: product.price,
+        description: product.description,
+        imageUrl: product.imageUrl,
+        id: json.decode(response.body)['name'],
+      );
 
-    _items.add(newProduct); //To added in the end
+      _items.add(newProduct); //To added in the end
 //    _items.insert(0, newProduct); //To insert in the beginning
 
-    notifyListeners();
+      notifyListeners();
+    });
   }
 
   void updateProduct(String id, Product newProduct) {
@@ -87,8 +104,9 @@ class ProductProvider with ChangeNotifier {
       print('...');
     }
   }
+
   void deleteProduct(String id) {
-    _items.removeWhere((prod) => prod.id==id);
+    _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
 }
