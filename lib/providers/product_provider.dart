@@ -65,9 +65,9 @@ class ProductProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProduct(Product product) {
-    const url = 'https://shopapp69.firebaseio.com/products.json';
-    http
+  Future<void> addProduct(Product product) {
+    const url = 'https://shopapp69.firebaseio.com/products';
+    return http
         .post(
       url,
       body: json.encode({
@@ -87,11 +87,12 @@ class ProductProvider with ChangeNotifier {
         imageUrl: product.imageUrl,
         id: json.decode(response.body)['name'],
       );
-
       _items.add(newProduct); //To added in the end
-//    _items.insert(0, newProduct); //To insert in the beginning
-
+      // _items.insert(0, newProduct); //To insert in the beginning
       notifyListeners();
+    }).catchError((error) {
+      print(error);
+      throw error;
     });
   }
 
