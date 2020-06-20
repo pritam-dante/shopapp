@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/product_provider.dart';
 import '../providers/products.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -13,6 +15,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlController = TextEditingController();
   final _imageUrlFocusNode = FocusNode();
   final _form = GlobalKey<FormState>();
+
   var _editedProduct = Product(
     id: null,
     title: '',
@@ -20,12 +23,41 @@ class _EditProductScreenState extends State<EditProductScreen> {
     description: '',
     imageUrl: '',
   );
+  var _isInit = true;
+  var _initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
 
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
-
+    //if the source is from other place rather than routing than we can use init state,
+    //for this action we have to use didChangeDependencies
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _editedProduct = Provider.of<ProductProvider>(context, listen: false)
+            .findById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          // 'imageUrl': _editedProduct.imageUrl,
+          //because we use controller with imageUrl
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
 //always dispose focus node to avoid memory leaks
@@ -60,10 +92,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState.save();
-    print(_editedProduct.title);
-    print(_editedProduct.price);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);
+    if (_editedProduct.id != null) {
+      Provider.of<ProductProvider>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<ProductProvider>(context, listen: false)
+          .addProduct(_editedProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -85,6 +121,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           child: ListView(
             children: <Widget>[
               TextFormField(
+                initialValue: _initValues['title'],
                 decoration: InputDecoration(
                   labelText: 'Title',
                 ),
@@ -104,11 +141,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     price: _editedProduct.price,
                     description: _editedProduct.description,
                     imageUrl: _editedProduct.imageUrl,
-                    id: null,
+                    id: _editedProduct.id,
+                    isFavourite: _editedProduct.isFavourite,
                   );
                 },
               ),
               TextFormField(
+                initialValue: _initValues['price'],
                 decoration: InputDecoration(
                   labelText: 'Price',
                 ),
@@ -136,11 +175,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     price: double.parse(value),
                     description: _editedProduct.description,
                     imageUrl: _editedProduct.imageUrl,
-                    id: null,
+                    id: _editedProduct.id,
+                    isFavourite: _editedProduct.isFavourite,
                   );
                 },
               ),
               TextFormField(
+                initialValue: _initValues['description'],
                 decoration: InputDecoration(
                   labelText: 'Description',
                 ),
@@ -162,7 +203,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     price: _editedProduct.price,
                     description: value,
                     imageUrl: _editedProduct.imageUrl,
-                    id: null,
+                    id: _editedProduct.id,
+                    isFavourite: _editedProduct.isFavourite,
                   );
                 },
               ),
@@ -210,7 +252,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           price: _editedProduct.price,
                           description: _editedProduct.description,
                           imageUrl: value,
-                          id: null,
+                          id: _editedProduct.id,
+                          isFavourite: _editedProduct.isFavourite,
                         );
                       },
                     ),
