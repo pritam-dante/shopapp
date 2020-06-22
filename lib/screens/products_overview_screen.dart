@@ -32,6 +32,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     // });
     super.initState();
   }
+
 //dont use asyncAwait with @overideMethods
   @override
   void didChangeDependencies() {
@@ -111,7 +112,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body:_isLoading ? Center(child: CircularProgressIndicator(),) : ProductsGrid(_showOnlyFavourites),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showOnlyFavourites),
     );
   }
 }
